@@ -1,280 +1,309 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Dashboard - Ascensor Social</title>
-
-	<!-- TailwindCSS CDN -->
 	<script src="https://cdn.tailwindcss.com"></script>
-
-	<!-- Chart.js CDN -->
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 	<style>
-		/* Neumorphism soft card effect */
 		.neu {
 			background: linear-gradient(145deg, #f7fbff, #ffffff);
 			border-radius: 12px;
 			box-shadow: 8px 8px 16px rgba(180,200,220,0.25), -8px -8px 16px rgba(255,255,255,0.9);
 		}
-		.neu-inset {
-			background: linear-gradient(145deg,#eef6ff,#ffffff);
-			border-radius:10px;
-			box-shadow: inset 6px 6px 10px rgba(180,200,220,0.25), inset -6px -6px 10px rgba(255,255,255,0.9);
-		}
-		/* small badge style */
-		.badge {
-			@apply inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-semibold;
-		}
-		/* Subtle pastel blue palette */
-		.bg-soft-blue {
-			background: linear-gradient(180deg,#eef6ff,#f8fbff);
-		}
+		body { margin: 0; padding: 0; }
+		html, body { width: 100%; height: 100%; }
 	</style>
 </head>
-<body class="bg-gray-50 h-screen antialiased text-gray-800 overflow-hidden">
-
-	<div class="flex-1 flex flex-col h-screen overflow-hidden">
-		<!-- Main Content -->
-		<header class="flex items-center justify-between gap-4 p-2 md:p-3 bg-transparent flex-shrink-0">
+<body class="bg-gray-50 overflow-hidden">
+	<div class="flex flex-col h-screen">
+		<!-- Header -->
+		<header class="flex items-center justify-between p-4 bg-white border-b border-gray-200 flex-shrink-0">
 			<div class="flex items-center gap-4">
-				<h1 class="text-lg font-semibold text-gray-800">Panel de Control</h1>
+				<h1 class="text-2xl font-bold text-gray-800">Ascensor Social</h1>
+				<div id="city-badge" class="hidden px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+					Filtro: <span id="city-name"></span>
+				</div>
 			</div>
 
-			<!-- Search and Filters -->
-			<div class="flex-1 max-w-2xl mx-4 flex items-center gap-3">
-				<div class="relative flex-1">
-					<input type="search" placeholder="Buscar..." class="w-full rounded-full border-none px-4 py-2 pl-10 bg-white/80 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-					<svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"/></svg>
-				</div>
-				<button id="filters-btn" class="p-2 rounded-lg bg-white/80 shadow-sm hover:bg-white transition neu-inset flex items-center gap-2 px-4 py-2 font-medium text-gray-700">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2.586a1 1 0 0 1-.293.707l-6.414 6.414a1 1 0 0 0-.293.707V17l-4 4v-6.586a1 1 0 0 0-.293-.707L3.293 7.293A1 1 0 0 1 3 6.586V4z"/></svg>
-					Filtros
+			<!-- Filtros -->
+			<div class="flex items-center gap-3">
+				<button id="filters-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+					Filtros ▼
 				</button>
-			</div>				<!-- Profile / Notifications -->
-				<div class="flex items-center gap-4">
-					<button class="p-2 rounded-full neu-inset relative">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.403-4.209A2 2 0 0 0 16.658 12H7.342a2 2 0 0 0-1.939 0L4 17h5"/></svg>
-						<span class="absolute -top-1 -right-1 inline-flex items-center justify-center h-4 w-4 rounded-full bg-red-400 text-xs text-white">3</span>
+			</div>
+
+			<!-- Menú filtros (oculto por defecto) -->
+			<div id="filters-menu" class="hidden absolute top-16 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-50 w-48">
+				<div class="space-y-3">
+					<button class="filter-city w-full text-left px-3 py-2 rounded hover:bg-blue-50" data-city="madrid">
+						<span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>Madrid
 					</button>
+					<button class="filter-city w-full text-left px-3 py-2 rounded hover:bg-yellow-50" data-city="barcelona">
+						<span class="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>Barcelona
+					</button>
+					<button class="filter-city w-full text-left px-3 py-2 rounded hover:bg-orange-50" data-city="valencia">
+						<span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>Valencia
+					</button>
+					<hr class="my-2">
+					<button id="clear-filters" class="w-full text-left px-3 py-2 rounded bg-red-100 text-red-700 hover:bg-red-200">
+						Limpiar Filtros
+					</button>
+				</div>
+			</div>
+		</header>
 
-					<div class="flex items-center gap-3 p-2 rounded-full bg-white neu-inset">
-						<img src="https://api.dicebear.com/6.x/initials/svg?seed=Migue" alt="Avatar" class="h-8 w-8 rounded-full object-cover" />
-						<div class="hidden md:block text-left">
-							<div class="text-sm font-medium">Miguel</div>
-							<div class="text-xs text-gray-500">Administrador</div>
-						</div>
+		<!-- Main Content -->
+		<main class="flex-1 p-2 overflow-hidden">
+			<div class="grid grid-cols-2 gap-2 h-full">
+			<!-- Card 1: Movilidad Ascendente -->
+			<div class="neu p-2 flex flex-col">
+				<h3 class="text-xs font-bold text-gray-800 mb-1">Movilidad Ascendente</h3>
+				<div class="flex-1 min-h-0 relative mb-1">
+					<canvas id="chart-movilidad"></canvas>
+				</div>
+				<div class="text-xs text-gray-700 space-y-0.5 bg-blue-50 p-1.5 rounded">
+					<p class="font-semibold text-blue-700">Centil de hijos según padre</p>
+					<p>Barras más altas = más ascenso</p>
+				</div>
+			</div>
+
+			<!-- Card 2: Herencia de Pobreza -->
+			<div class="neu p-2 flex flex-col">
+				<h3 class="text-xs font-bold text-gray-800 mb-1">Herencia de Pobreza (Q1)</h3>
+				<div class="flex-1 flex items-center justify-center min-h-0">
+					<div class="w-28 h-28 relative">
+						<canvas id="chart-herencia"></canvas>
 					</div>
 				</div>
-			</header>
+				<div class="text-xs text-gray-700 mt-1 space-y-0.5 bg-red-50 p-1.5 rounded">
+					<p class="font-semibold text-red-700">% que permanece en Q1</p>
+					<div><span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></span>Quedan: 24.9%</div>
+					<div><span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></span>Salen: 75.1%</div>
+				</div>
+			</div>
 
-		<main class="p-1 md:p-1.5 overflow-hidden flex-1 flex flex-col">
-			<!-- Cards grid -->
-			<div class="grid gap-1 md:gap-1.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr justify-items-center w-full h-full overflow-hidden">
-				<!-- Card Salarios en España -->
-				<section class="neu p-1.5 rounded-lg flex flex-col w-full h-full">
-					<div class="flex items-start justify-between mb-1">
-						<div>
-							<h3 class="text-xs text-gray-600">Salarios</h3>
-							<h2 class="text-sm font-bold">7.852M</h2>
-						</div>
-						<span class="text-xs text-green-600 font-semibold">▲ 4.2%</span>
-					</div>
-					<div class="flex-1 min-h-0">
-						<canvas id="chart-salarios" height="60"></canvas>
-					</div>
-					<p class="text-xs text-gray-500 mt-1">Promedio anual</p>
-				</section>
-
-				<!-- Age Donut -->
-				<section class="neu p-1.5 rounded-lg flex flex-col w-full h-full">
-					<h3 class="text-xs text-gray-600 mb-1">Edad Media</h3>
-					<div class="flex-1 min-h-0 flex items-center justify-center">
-						<canvas id="chart-edad" height="65" width="65"></canvas>
-					</div>
-					<ul class="text-xs space-y-0.5 mt-1">
-						<li class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span><span>< 30 años</span></li>
-						<li class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-300 inline-block"></span><span>> 30 años</span></li>
-						<li class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span><span>Nunca</span></li>
-					</ul>
-				</section>
-
-				<!-- Probabilidad de Ascenso -->
-				<section class="neu p-1.5 rounded-lg flex flex-col w-full h-full">
-					<h3 class="text-xs text-gray-600 mb-1">Probabilidad Ascenso</h3>
-					<div class="flex-1 min-h-0 flex items-center justify-center">
-						<canvas id="chart-probabilidad" height="65" width="65"></canvas>
-					</div>
-					<div class="text-xs text-gray-600 mt-1 flex justify-around">
-						<span><span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-1"></span>Alto</span>
-						<span><span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span>Medio</span>
-						<span><span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1"></span>Bajo</span>
-					</div>
-				</section>
-
-			<!-- Ranking Regional -->
-			<section class="neu p-1.5 rounded-lg sm:col-span-1 lg:col-span-1 w-full h-full flex flex-col">
-					<div class="flex items-center justify-between mb-1">
-						<div>
-							<h3 class="text-xs text-gray-600">Ranking Regional</h3>
-						</div>
-						<div class="text-xs text-gray-500">Top 4</div>
-					</div>
-
-					<ul class="space-y-0.5 mt-1 flex-1 overflow-y-auto">
-						<li class="flex items-center justify-between p-1 rounded text-xs bg-white/60 neu-inset">
-							<div class="flex items-center gap-1">
-								<div class="w-5 h-5 rounded flex items-center justify-center bg-blue-50 text-xs font-semibold">M</div>
-								<div><span class="font-medium">Madrid</span> <span class="text-gray-500">98</span></div>
-							</div>
-							<span>1</span>
-						</li>
-						<li class="flex items-center justify-between p-1 rounded text-xs bg-white/60 neu-inset">
-							<div class="flex items-center gap-1">
-								<div class="w-5 h-5 rounded flex items-center justify-center bg-indigo-50 text-xs font-semibold">A</div>
-								<div><span class="font-medium">Andalucía</span> <span class="text-gray-500">89</span></div>
-							</div>
-							<span>2</span>
-						</li>
-						<li class="flex items-center justify-between p-1 rounded text-xs bg-white/60 neu-inset">
-							<div class="flex items-center gap-1">
-								<div class="w-5 h-5 rounded flex items-center justify-center bg-cyan-50 text-xs font-semibold">G</div>
-								<div><span class="font-medium">Galicia</span> <span class="text-gray-500">85</span></div>
-							</div>
-							<span>3</span>
-						</li>
-						<li class="flex items-center justify-between p-1 rounded text-xs bg-white/60 neu-inset">
-							<div class="flex items-center gap-1">
-								<div class="w-5 h-5 rounded flex items-center justify-center bg-sky-50 text-xs font-semibold">C</div>
-								<div><span class="font-medium">Cataluña</span> <span class="text-gray-500">82</span></div>
-							</div>
-							<span>4</span>
-						</li>
-					</ul>
-				</section>
-
-			<!-- Centil Padre/Hijo -->
-			<section class="neu p-1.5 rounded-lg flex flex-col w-full h-full">
-				<div class="flex items-center justify-between flex-shrink-0">
-					<div>
-						<h3 class="text-xs text-gray-600">Centil</h3>
-						<h2 class="text-xs font-semibold">P/H</h2>
+			<!-- Card 3: Destino Hijos -->
+			<div class="neu p-2 flex flex-col">
+				<h3 class="text-xs font-bold text-gray-800 mb-1">Destino de Hijos (Q1→)</h3>
+				<div class="flex-1 flex items-center justify-center min-h-0">
+					<div class="w-24 h-24 relative">
+						<canvas id="chart-destino"></canvas>
 					</div>
 				</div>
+				<div class="text-xs text-gray-700 mt-1 bg-purple-50 p-1.5 rounded">
+					<p class="font-semibold text-purple-700 mb-0.5">A dónde llegan los hijos</p>
+					<div class="grid grid-cols-2 gap-0.5">
+						<span><span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-1"></span>Q1: 24.9%</span>
+						<span><span class="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 mr-1"></span>Q2: 22.6%</span>
+						<span><span class="inline-block w-1.5 h-1.5 rounded-full bg-yellow-400 mr-1"></span>Q3: 21.8%</span>
+						<span><span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1"></span>Q4: 18.1%</span>
+						<span class="col-span-2"><span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 mr-1"></span>Q5: 12.6%</span>
+					</div>
+				</div>
+			</div>
 
-				<div class="mt-1 flex-1 min-h-0">
-					<canvas id="chart-centil" height="80"></canvas>
+			<!-- Card 4: Ranking Regional -->
+			<div class="neu p-2 flex flex-col">
+				<h3 class="text-xs font-bold text-gray-800 mb-1">Mejores Regiones</h3>
+				<p class="text-xs text-gray-600 mb-1 font-semibold">Movilidad ascendente media</p>
+				<div class="flex-1 overflow-y-auto space-y-0.5">
+					<div class="flex justify-between items-center p-1 bg-green-50 rounded text-xs">
+						<span>1. Cataluña</span>
+						<span class="bg-green-200 px-1.5 py-0.5 rounded font-bold text-xs">54.5</span>
+					</div>
+					<div class="flex justify-between items-center p-1 bg-green-50 rounded text-xs">
+						<span>2. Aragón</span>
+						<span class="bg-green-200 px-1.5 py-0.5 rounded font-bold text-xs">53.6</span>
+					</div>
+					<div class="flex justify-between items-center p-1 bg-green-50 rounded text-xs">
+						<span>3. La Rioja</span>
+						<span class="bg-green-200 px-1.5 py-0.5 rounded font-bold text-xs">52.3</span>
+					</div>
+					<div class="flex justify-between items-center p-1 bg-blue-50 rounded text-xs">
+						<span>4. Madrid</span>
+						<span class="bg-blue-200 px-1.5 py-0.5 rounded font-bold text-xs">51.5</span>
+					</div>
+					<div class="flex justify-between items-center p-1 bg-blue-50 rounded text-xs">
+						<span>5. Baleares</span>
+						<span class="bg-blue-200 px-1.5 py-0.5 rounded font-bold text-xs">51.4</span>
+					</div>
 				</div>
-			</section>
+			</div>
+					</div>
 				</div>
-			</main>
-		</div>
+			</div>
+		</main>
 	</div>
 
-	<!-- Scripts -->
 	<script>
-		// Chart datasets (sample)
-		const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-		// Salarios - bar chart
-		const ctxSalarios = document.getElementById('chart-salarios').getContext('2d');
-		const salariosChart = new Chart(ctxSalarios, {
-			type: 'bar',
-			data: {
-				labels: ['E','F','M','A','M','J','J','A','S','O','N','D'],
-				datasets: [{
-					label: 'Salario promedio',
-					data: [7000000, 7300000, 7500000, 7600000, 7800000, 7900000, 7850000, 8000000, 8200000, 8100000, 7800000, 7852000],
-					backgroundColor: 'rgba(59,130,246,0.3)',
-					borderColor: 'rgba(59,130,246,0.8)',
-					borderWidth: 1
-				}]
+		// Datos por ciudad
+		const cityData = {
+			nacional: {
+				name: 'Nacional',
+				movilidad: [43, 42, 41, 41, 42, 43, 44, 45, 46, 47],
+				herencia: [24.9, 75.1],
+				destino: [24.89, 22.57, 21.80, 18.12, 12.61],
+				color: 'rgba(96,165,250,0.8)',
+				borderColor: 'rgba(59,130,246,1)'
 			},
-			options: {
-				plugins: {
-					legend: { display: false }
-				},
-				scales: {
-					x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 8 } } },
-					y: { display: false, grid: { display: false } }
-				},
-				responsive: true,
-				maintainAspectRatio: false
-			}
-		});
-
-		// Edad donut chart
-		const ctxEdad = document.getElementById('chart-edad').getContext('2d');
-		const edadChart = new Chart(ctxEdad, {
-			type: 'doughnut',
-			data: {
-				labels: ['<30','>30','Nunca'],
-				datasets: [{
-					data: [55, 30, 15],
-					backgroundColor: ['#60A5FA','#A78BFA','#E5E7EB'],
-					borderWidth: 0
-				}]
+			madrid: {
+				name: 'Madrid',
+				movilidad: [45, 44, 43, 42, 43, 44, 46, 47, 48, 49],
+				herencia: [22.5, 77.5],
+				destino: [22.5, 21, 22, 19.5, 15],
+				color: 'rgba(59,130,246,0.8)',
+				borderColor: 'rgba(37,99,235,1)'
 			},
-			options: {
-				plugins: {
-					legend: { display: false }
-				},
-				responsive: true,
-				cutout: '60%'
-			}
-		});
-
-		// Probabilidad pie chart
-		const ctxProb = document.getElementById('chart-probabilidad').getContext('2d');
-		const probChart = new Chart(ctxProb, {
-			type: 'pie',
-			data: {
-				labels: ['Alto','Medio','Bajo'],
-				datasets: [{
-					data: [35,25,40],
-					backgroundColor: ['#34D399','#60A5FA','#FCA5A5'],
-					borderWidth: 0
-				}]
+			barcelona: {
+				name: 'Barcelona',
+				movilidad: [50, 49, 48, 48, 49, 50, 51, 52, 53, 54],
+				herencia: [20, 80],
+				destino: [20, 19, 21, 20, 20],
+				color: 'rgba(234,179,8,0.8)',
+				borderColor: 'rgba(202,138,4,1)'
 			},
-			options: {
-				plugins: {
-					legend: { display: false }
-				},
-				responsive: true
+			valencia: {
+				name: 'Valencia',
+				movilidad: [46, 45, 44, 43, 44, 45, 46, 47, 48, 49],
+				herencia: [23, 77],
+				destino: [23, 21.5, 21.5, 18.5, 15.5],
+				color: 'rgba(249,115,22,0.8)',
+				borderColor: 'rgba(234,88,12,1)'
 			}
-		});
+		};
 
-		// Centil line chart
-		const ctxCentil = document.getElementById('chart-centil').getContext('2d');
-		const centilChart = new Chart(ctxCentil, {
-			type: 'line',
-			data: {
-				labels: months,
-				datasets: [{
-					label: 'Centil',
-					data: [7600000, 7700000, 7800000, 7900000, 7950000, 8000000, 8050000, 8080000, 8100000, 8120000, 8150000, 8000000],
-					borderColor: '#60A5FA',
-					backgroundColor: 'rgba(96,165,250,0.15)',
-					fill: true,
-					tension: 0.3,
-					pointRadius: 2
-				}]
-			},
-			options: {
-				plugins: { legend: { display: false } },
-				scales: {
-					x: { grid: { display: false }, ticks: { color: '#6B7280', font: { size: 9 } } },
-					y: { grid: { color: 'rgba(15,23,42,0.04)' }, ticks: { color: '#6B7280', font: { size: 8 }, callback: function(v){ return (v/1000000).toFixed(0) + 'M' } } }
+		let currentCity = 'nacional';
+		let charts = {};
+
+		// Inicializar gráficos
+		function initCharts() {
+			// 1. Movilidad Ascendente
+			const ctx1 = document.getElementById('chart-movilidad').getContext('2d');
+			charts.movilidad = new Chart(ctx1, {
+				type: 'bar',
+				data: {
+					labels: ['1-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
+					datasets: [{
+						label: 'Centil Promedio',
+						data: cityData[currentCity].movilidad,
+						backgroundColor: cityData[currentCity].color,
+						borderColor: cityData[currentCity].borderColor,
+						borderWidth: 2
+					}]
 				},
-				responsive: true,
-				maintainAspectRatio: false
-			}
-		});
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: { display: false }
+					},
+					scales: {
+						y: { max: 100, grid: { display: false } },
+						x: { grid: { display: false } }
+					}
+				}
+			});
 
-		// Filtros button functionality
+			// 2. Herencia de Pobreza
+			const ctx2 = document.getElementById('chart-herencia').getContext('2d');
+			charts.herencia = new Chart(ctx2, {
+				type: 'doughnut',
+				data: {
+					labels: ['Permanecen Q1', 'Ascienden'],
+					datasets: [{
+						data: cityData[currentCity].herencia,
+						backgroundColor: ['#EF4444', '#FBBF24']
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: { display: false }
+					}
+				}
+			});
+
+			// 3. Destino de Hijos
+			const ctx3 = document.getElementById('chart-destino').getContext('2d');
+			charts.destino = new Chart(ctx3, {
+				type: 'pie',
+				data: {
+					labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'],
+					datasets: [{
+						data: cityData[currentCity].destino,
+						backgroundColor: ['#EF4444', '#F97316', '#FBBF24', '#3B82F6', '#6366F1']
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: { display: false }
+					}
+				}
+			});
+		}
+
+		// Actualizar gráficos
+		function updateCharts() {
+			const data = cityData[currentCity];
+			
+			charts.movilidad.data.datasets[0].data = data.movilidad;
+			charts.movilidad.data.datasets[0].backgroundColor = data.color;
+			charts.movilidad.data.datasets[0].borderColor = data.borderColor;
+			charts.movilidad.update();
+
+			charts.herencia.data.datasets[0].data = data.herencia;
+			charts.herencia.update();
+
+			charts.destino.data.datasets[0].data = data.destino;
+			charts.destino.update();
+		}
+
+		// Event Listeners - Filtros
 		document.getElementById('filters-btn').addEventListener('click', () => {
-			alert('Panel de filtros - Funcionalidad a implementar');
+			document.getElementById('filters-menu').classList.toggle('hidden');
+		});
+
+		// Cerrar menú al hacer clic afuera
+		document.addEventListener('click', (e) => {
+			const menu = document.getElementById('filters-menu');
+			const btn = document.getElementById('filters-btn');
+			if (!menu.contains(e.target) && !btn.contains(e.target)) {
+				menu.classList.add('hidden');
+			}
+		});
+
+		// Filtros por ciudad
+		document.querySelectorAll('.filter-city').forEach(btn => {
+			btn.addEventListener('click', () => {
+				currentCity = btn.dataset.city;
+				updateCharts();
+
+				// Mostrar badge
+				const badge = document.getElementById('city-badge');
+				document.getElementById('city-name').textContent = cityData[currentCity].name;
+				badge.classList.remove('hidden');
+
+				// Cerrar menú
+				document.getElementById('filters-menu').classList.add('hidden');
+			});
+		});
+
+		// Limpiar filtros
+		document.getElementById('clear-filters').addEventListener('click', () => {
+			currentCity = 'nacional';
+			updateCharts();
+			document.getElementById('city-badge').classList.add('hidden');
+			document.getElementById('filters-menu').classList.add('hidden');
+		});
+
+		// Inicializar al cargar
+		window.addEventListener('load', () => {
+			initCharts();
 		});
 	</script>
 </body>
